@@ -195,9 +195,9 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Slide-out Sidebar Drawer (Mobile) & Fixed Sidebar (Desktop) */}
+      {/* Slide-out Sidebar Drawer (Mobile) & fixed navigation (Desktop) */}
       <aside
-        className={`fixed lg:static top-0 left-0 z-50 h-full lg:h-auto w-64 bg-zinc-950 border-r border-zinc-800/80 p-5 lg:p-6 flex flex-col justify-between shrink-0 transition-transform duration-300 ease-in-out font-sans ${
+        className={`fixed lg:static top-0 left-0 z-50 h-full w-64 shrink-0 border-r border-zinc-800/80 bg-zinc-950 p-5 font-sans transition-transform duration-300 ease-in-out lg:h-full lg:p-6 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -230,18 +230,6 @@ export default function Sidebar() {
 
           {/* Navigation Links */}
           {renderNavLinks()}
-        </div>
-
-        {/* Footer Info Box */}
-        <div className="pt-6">
-          <div className="p-3.5 rounded-lg bg-zinc-900 border border-zinc-800/80 text-xs text-zinc-400 text-center space-y-1">
-            <div className="text-[11px] text-zinc-500 uppercase tracking-wider font-bold">
-              API Endpoint
-            </div>
-            <div className="text-zinc-200 font-mono text-[11px] truncate">
-              localhost:3000
-            </div>
-          </div>
         </div>
       </aside>
     </>
