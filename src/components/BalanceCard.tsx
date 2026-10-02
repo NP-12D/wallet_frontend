@@ -54,13 +54,13 @@ export default function BalanceCard({ wallet, loading = false }: BalanceCardProp
     : '0.00';
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800 p-6 sm:p-7 md:p-8 transition-colors hover:border-zinc-700 font-sans text-zinc-100">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 mb-8">
+    <div className="relative overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-sans text-zinc-100 transition-colors hover:border-zinc-700 sm:p-7 md:p-8">
+      <div className="mb-6 flex flex-col justify-between gap-3 sm:mb-8 sm:flex-row sm:items-start sm:gap-4">
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
             Available balance
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white mt-1 truncate">
+          <h2 className="mt-1 truncate text-3xl font-semibold text-white sm:text-4xl md:text-5xl">
             ${balanceFormatted}
           </h2>
         </div>
@@ -73,10 +73,10 @@ export default function BalanceCard({ wallet, loading = false }: BalanceCardProp
         </div>
       </div>
 
-      <div className="mb-6 space-y-1.5">
+      <div className="mb-5 space-y-1.5 sm:mb-6">
         <div className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Wallet ID</div>
         <div className="flex items-center gap-2 max-w-full">
-          <div className="font-mono text-xs text-zinc-300 bg-zinc-950 px-3.5 py-2.5 rounded-lg border border-zinc-800 truncate max-w-full select-all">
+          <div className="min-w-0 max-w-full truncate rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-2.5 font-mono text-[11px] text-zinc-300 select-all sm:px-3.5 sm:text-xs">
             {wallet?.walletId || '────────────────────────'}
           </div>
 
@@ -84,7 +84,7 @@ export default function BalanceCard({ wallet, loading = false }: BalanceCardProp
             <button
               type="button"
               onClick={handleCopyId}
-              className="shrink-0 text-xs px-3.5 py-2.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-800 transition-colors font-medium active:scale-95 cursor-pointer"
+              className="shrink-0 rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-2.5 text-[11px] font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 active:scale-95 sm:px-3.5 sm:text-xs"
               title="Copy Wallet ID"
             >
               {copied ? 'Copied!' : 'Copy'}

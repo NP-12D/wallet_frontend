@@ -202,7 +202,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Top Navigation Toggle Bar (< lg) */}
-      <div className="lg:hidden sticky top-16 z-40 bg-zinc-950/90 backdrop-blur border-b border-zinc-800/80 px-4 py-2.5 flex items-center justify-between font-sans">
+      <div className="sticky top-14 z-40 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/90 px-3 py-2.5 font-sans backdrop-blur lg:hidden sm:top-16 sm:px-4">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
             Menu
@@ -217,7 +217,7 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer"
+          className="flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 p-2 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800"
           aria-label="Toggle Navigation Menu"
         >
           <svg

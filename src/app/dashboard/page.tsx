@@ -59,12 +59,12 @@ export default function DashboardPage() {
   const topTransactions = analytics?.topTransactions ?? [];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto text-zinc-100 font-sans">
+    <div className="mx-auto max-w-6xl space-y-5 font-sans text-zinc-100 sm:space-y-6">
       <div className="flex flex-col gap-1 border-b border-zinc-800 pb-5">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
           Wallet
         </div>
-        <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+        <h1 className="text-xl font-semibold text-white sm:text-3xl">
           Your money, in view.
         </h1>
         <p className="text-sm text-zinc-400">
@@ -72,12 +72,12 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
           <BalanceCard wallet={wallet} />
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 flex flex-col justify-between transition-colors hover:border-zinc-700">
+        <div className="flex flex-col justify-between rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 sm:p-6">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
             <span className="text-[11px] font-semibold tracking-wider uppercase text-zinc-500">This month</span>
             <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
@@ -110,7 +110,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 transition-colors hover:border-zinc-700">
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 sm:p-6">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800">
           <span className="text-[11px] font-semibold tracking-wider uppercase text-zinc-500">Latest activity</span>
           <h3 className="text-sm font-semibold text-white">

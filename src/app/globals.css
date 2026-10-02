@@ -77,10 +77,16 @@ html.dark {
 
 html {
   background: var(--color-zinc-950);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
-  min-width: 320px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--color-zinc-950);
   color: var(--color-zinc-100);
   transition: background-color 180ms ease, color 180ms ease;

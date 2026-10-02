@@ -17,8 +17,8 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 font-sans backdrop-blur-md sm:px-6 lg:px-8">
-      <div className="flex items-center gap-2.5 sm:gap-4">
+    <header className="sticky top-0 z-50 flex h-14 min-w-0 items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-3 font-sans backdrop-blur-md sm:h-16 sm:px-6 lg:px-8">
+      <div className="flex min-w-0 items-center gap-2.5 sm:gap-4">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-sm font-bold text-white transition-opacity hover:opacity-90 sm:text-base"
@@ -47,10 +47,10 @@ export default function Navbar() {
         )}
       </div>
 
-      <div className="flex items-center gap-2.5 sm:gap-4">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         {isAuthenticated ? (
           <>
-            <div className="text-right max-w-27.5 xs:max-w-[150px] sm:max-w-55">
+            <div className="hidden text-right sm:block sm:max-w-55">
               <div className="text-xs sm:text-sm font-semibold text-zinc-200 truncate">
                 {user?.username}
               </div>
@@ -60,7 +60,7 @@ export default function Navbar() {
 
             <button
               onClick={handleLogout}
-              className="shrink-0 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+              className="shrink-0 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 sm:px-3 sm:text-xs"
             >
               Log Out
             </button>
