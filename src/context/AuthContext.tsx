@@ -10,6 +10,7 @@ interface AuthContextType {
   token: string | null;
   isReady: boolean;
   login: (email: string, password: string) => Promise<void>;
+  verifyLogin: (email: string, code: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -43,7 +44,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await authApi.login({ email, password });
+    await authApi.login({ email, password });
+  };
+
+  const verifyLogin = async (email: string, code: string) => {
+    const res = await authApi.verifyLogin({ email, code });
     setToken(res.token);
     setUser(res.user);
 
@@ -72,6 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         token,
         isReady,
         login,
+        verifyLogin,
         register,
         logout,
         isAuthenticated: Boolean(user && token),

@@ -13,6 +13,8 @@ export default function TransferPage() {
   const [fetchingBalance, setFetchingBalance] = useState(true);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ receiverEmail?: string; amount?: string; description?: string }>({});
+  const [verificationCode, setVerificationCode] = useState('');
+  const [awaitingCode, setAwaitingCode] = useState(false);
 
   // Fetch current user wallet balance for context
   const loadBalance = useCallback(async () => {
@@ -53,18 +55,7 @@ export default function TransferPage() {
         amount: numAmount,
         description,
       });
-
-      setStatus({
-        type: 'success',
-        msg: `Successfully sent $${numAmount.toFixed(2)} to ${receiverEmail}!`,
-      });
-
-      setReceiverEmail('');
-      setAmount('');
-      setDescription('');
-
-      // Refresh balance after transfer completes
-      loadBalance();
+      setAwaitingCode(true);
     } catch (err: any) {
       setStatus({
         type: 'error',
@@ -77,6 +68,47 @@ export default function TransferPage() {
 
   const handlePresetSelect = (preset: number) => {
     setAmount(preset.toString());
+  };
+
+  const handleConfirmTransfer = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!/^\d{4}$/.test(verificationCode)) {
+      setStatus({ type: 'error', msg: 'Enter the four-digit code sent to your email.' });
+      return;
+    }
+    setLoading(true);
+    setStatus(null);
+    try {
+      await walletApi.confirmTransfer(verificationCode);
+      setStatus({ type: 'success', msg: `Successfully sent $${Number(amount).toFixed(2)} to ${receiverEmail}!` });
+      setReceiverEmail('');
+      setAmount('');
+      setDescription('');
+      setVerificationCode('');
+      setAwaitingCode(false);
+      loadBalance();
+    } catch (err: any) {
+      setStatus({ type: 'error', msg: err?.response?.data?.message || 'Could not verify the transfer code.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    setLoading(true);
+    setStatus(null);
+    try {
+      await walletApi.transfer({
+        receiver_email: receiverEmail,
+        amount: Number(amount),
+        description,
+      });
+      setVerificationCode('');
+    } catch (err: any) {
+      setStatus({ type: 'error', msg: err?.response?.data?.message || 'Could not resend the verification code.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUseMax = () => {
@@ -137,6 +169,15 @@ export default function TransferPage() {
       )}
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.75fr)] lg:items-start">
+        {awaitingCode ? (
+          <form onSubmit={handleConfirmTransfer} className="space-y-5 rounded-lg border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
+            <div><h2 className="text-base font-semibold text-white">Confirm transfer</h2><p className="mt-1 text-sm text-zinc-400">We sent a four-digit code to your email. Enter it to send {formatCurrency(Number(amount))} to {receiverEmail}.</p></div>
+            <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, ''))} placeholder="1234" className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-center font-mono text-2xl tracking-[0.35em] text-zinc-100 outline-none focus:border-zinc-600" />
+            <button type="submit" disabled={loading} className="w-full rounded-lg bg-emerald-500 px-4 py-3.5 text-sm font-semibold text-zinc-950 disabled:opacity-50">{loading ? 'Confirming...' : 'Confirm and send money'}</button>
+            <button type="button" disabled={loading} onClick={resendCode} className="w-full text-sm text-zinc-400 hover:text-zinc-100 disabled:opacity-40">Resend code</button>
+            <button type="button" disabled={loading} onClick={() => { setAwaitingCode(false); setVerificationCode(''); setStatus(null); }} className="w-full text-sm text-zinc-400 hover:text-zinc-100">Cancel transfer</button>
+          </form>
+        ) : (
         <form
           onSubmit={handleTransfer}
           noValidate
@@ -274,6 +315,7 @@ export default function TransferPage() {
             )}
           </button>
         </form>
+        )}
 
         <aside className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 lg:sticky lg:top-24">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4">

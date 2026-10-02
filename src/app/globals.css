@@ -115,6 +115,12 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
 
+/* Edge adds its own password-reveal control; the forms provide one consistent button. */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,

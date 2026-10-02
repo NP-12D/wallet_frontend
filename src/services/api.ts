@@ -41,7 +41,13 @@ export const authApi = {
       .then((res) => res.data),
 
   login: (data: { email: string; password: string }) =>
-    api.post<AuthResponse>('/login', data).then((res) => res.data),
+    api.post<{ message: string }>('/login', data).then((res) => res.data),
+
+  verifyRegistration: (data: { email: string; code: string }) =>
+    api.post<{ message: string }>('/register/verify', data).then((res) => res.data),
+
+  verifyLogin: (data: { email: string; code: string }) =>
+    api.post<AuthResponse>('/login/verify', data).then((res) => res.data),
 };
 
 export const walletApi = {
@@ -51,7 +57,10 @@ export const walletApi = {
     receiver_email: string;
     amount: number;
     description?: string;
-  }) => api.post('/wallet/transfer', data).then((res) => res.data),
+  }) => api.post<{ message: string }>('/wallet/transfer', data).then((res) => res.data),
+
+  confirmTransfer: (code: string) =>
+    api.post('/wallet/transfer/confirm', { code }).then((res) => res.data),
 
   getTransactions: (params?: {
     page?: number;

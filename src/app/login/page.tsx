@@ -14,8 +14,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [verificationCode, setVerificationCode] = useState('');
+  const [awaitingCode, setAwaitingCode] = useState(false);
 
-  const { login } = useAuth();
+  const { login, verifyLogin } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,11 +34,41 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push('/dashboard');
+      setAwaitingCode(true);
     } catch (err: any) {
       setError(
         err?.response?.data?.message || 'Invalid email or password. Please try again.'
       );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!/^\d{4}$/.test(verificationCode)) {
+      setError('Enter the four-digit code sent to your email.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await verifyLogin(email, verificationCode);
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Could not verify the code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await login(email, password);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Could not resend the code.');
     } finally {
       setLoading(false);
     }
@@ -63,7 +95,18 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form noValidate onSubmit={handleSubmit} className="space-y-4">
+        {awaitingCode ? (
+          <form noValidate onSubmit={handleVerify} className="space-y-4">
+            <div className="rounded-lg border border-zinc-700 bg-zinc-950 p-3 text-xs leading-relaxed text-zinc-300">We sent a four-digit sign-in code to <span className="font-semibold text-zinc-100">{email}</span>.</div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-zinc-300">Email verification code</label>
+              <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, ''))} placeholder="1234" className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 px-4 py-3 text-center font-mono text-xl tracking-[0.35em] text-zinc-100 outline-none focus:border-zinc-600" />
+            </div>
+            <button type="submit" disabled={loading} className="flex w-full items-center justify-center rounded-lg bg-emerald-500 py-3 text-xs font-bold text-slate-950 transition disabled:opacity-40">{loading ? 'Verifying...' : 'Verify and sign in'}</button>
+            <button type="button" disabled={loading} onClick={resendCode} className="w-full text-xs font-medium text-zinc-400 hover:text-zinc-100 disabled:opacity-40">Resend code</button>
+            <button type="button" onClick={() => { setAwaitingCode(false); setVerificationCode(''); setError(null); }} className="w-full text-xs font-medium text-zinc-400 hover:text-zinc-100">Use a different account</button>
+          </form>
+        ) : <form noValidate onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-zinc-300 mb-1.5">
               Email Address
@@ -126,7 +169,7 @@ export default function LoginPage() {
               <span>Sign In</span>
             )}
           </button>
-        </form>
+        </form>}
 
         <div className="text-center text-xs text-zinc-400 pt-2 border-t border-zinc-800">
           Don&apos;t have an account?{' '}
