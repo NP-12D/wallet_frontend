@@ -12,6 +12,8 @@ import {
   SupportConversation,
   SupportConversationDetail,
   SupportMessage,
+  JournalEntry,
+  JournalEntryType,
 } from '@/types/wallet';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -103,6 +105,29 @@ export const moneyRequestsApi = {
 
   decline: (requestId: string) =>
     api.post<MoneyRequest>(`/money-requests/${requestId}/decline`).then((res) => res.data),
+};
+
+export const journalApi = {
+  list: () => api.get<JournalEntry[]>('/journal').then((res) => res.data),
+
+  create: (data: {
+    type: JournalEntryType;
+    amount: number;
+    counterparty: string;
+    note?: string;
+    occurredAt: string;
+  }) => api.post<JournalEntry>('/journal', data).then((res) => res.data),
+
+  update: (entryId: string, data: Partial<{
+    type: JournalEntryType;
+    amount: number;
+    counterparty: string;
+    note: string;
+    occurredAt: string;
+  }>) => api.patch<JournalEntry>(`/journal/${entryId}`, data).then((res) => res.data),
+
+  remove: (entryId: string) =>
+    api.delete<{ message: string }>(`/journal/${entryId}`).then((res) => res.data),
 };
 
 export const paymentsApi = {

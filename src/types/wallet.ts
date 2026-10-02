@@ -158,6 +158,19 @@ export interface SupportConversationDetail {
   messages: SupportMessage[];
 }
 
+export type JournalEntryType = 'EXPENSE' | 'INCOME';
+
+export interface JournalEntry {
+  entryId: string;
+  type: JournalEntryType;
+  amount: number;
+  counterparty: string;
+  note: string;
+  occurredAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /* ============================================================================
    TYPE ALIASES FOR CONSISTENCY (ADDED)
    ============================================================================ */

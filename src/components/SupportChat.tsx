@@ -250,8 +250,8 @@ export default function SupportChat() {
 
       {!isOpen && (
         <button ref={chatButtonRef} type="button" onClick={openChat} className="relative ml-auto grid h-13 w-13 place-items-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-100 shadow-xl transition duration-200 hover:-translate-y-0.5 hover:border-zinc-500 hover:bg-zinc-800" aria-label={title} title={title}>
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a10.8 10.8 0 01-4.4-.93L3 20l1.48-3.45A7.33 7.33 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-5H6a2 2 0 0 0-2 2v1Zm16 0a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2v1ZM17 16a5 5 0 0 1-5 5h-1" />
           </svg>
           {unreadCount > 0 && (
             <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full border-2 border-zinc-950 bg-zinc-100 px-1 text-[10px] font-extrabold leading-none text-zinc-950" aria-label={`${unreadCount} unread support messages`}>
