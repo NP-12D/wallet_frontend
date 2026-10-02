@@ -202,7 +202,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Top Navigation Toggle Bar (< lg) */}
-      <div className="sticky top-14 z-40 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/90 px-3 py-2.5 font-sans backdrop-blur lg:hidden sm:top-16 sm:px-4">
+      <div className="relative z-40 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/90 px-3 py-2.5 font-sans backdrop-blur lg:hidden sm:px-4">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
             Menu

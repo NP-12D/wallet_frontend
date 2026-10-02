@@ -30,7 +30,7 @@ export default function ProtectedAppLayout({
   }
 
   return (
-    <div className="flex min-h-dvh w-full min-w-0 flex-col overflow-x-hidden bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-dvh w-full min-w-0 flex-col overflow-x-hidden bg-zinc-950 text-zinc-100 lg:h-dvh lg:overflow-hidden">
       <Navbar />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <Sidebar />
