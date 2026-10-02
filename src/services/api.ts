@@ -8,6 +8,10 @@ import {
   CheckoutResponse,
   WebhookResponse,
   WebhookStatus,
+  MoneyRequest,
+  SupportConversation,
+  SupportConversationDetail,
+  SupportMessage,
 } from '@/types/wallet';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -32,7 +36,9 @@ api.interceptors.request.use((config) => {
 
 export const authApi = {
   register: (data: { username: string; email: string; password: string }) =>
-    api.post<AuthResponse>('/register', data).then((res) => res.data),
+    api
+      .post<{ message: string }>('/register', data)
+      .then((res) => res.data),
 
   login: (data: { email: string; password: string }) =>
     api.post<AuthResponse>('/login', data).then((res) => res.data),
@@ -71,6 +77,25 @@ export const walletApi = {
     api.get<AnalyticsData>('/wallet/analytics').then((res) => res.data),
 };
 
+export const moneyRequestsApi = {
+  create: (data: {
+    recipient_email: string;
+    amount: number;
+    description?: string;
+  }) => api.post<MoneyRequest>('/money-requests', data).then((res) => res.data),
+
+  list: () => api.get<MoneyRequest[]>('/money-requests').then((res) => res.data),
+
+  getPendingCount: () =>
+    api.get<{ count: number }>('/money-requests/pending-count').then((res) => res.data),
+
+  fulfill: (requestId: string) =>
+    api.post<MoneyRequest>(`/money-requests/${requestId}/fulfill`).then((res) => res.data),
+
+  decline: (requestId: string) =>
+    api.post<MoneyRequest>(`/money-requests/${requestId}/decline`).then((res) => res.data),
+};
+
 export const paymentsApi = {
   checkout: (data: { amount: number }) =>
     api
@@ -79,6 +104,28 @@ export const paymentsApi = {
 
   webhook: (data: { transaction_id: string; status: WebhookStatus }) =>
     api.post<WebhookResponse>('/payments/webhook', data).then((res) => res.data),
+};
+
+export const supportApi = {
+  getAccess: () =>
+    api.get<{ isAdmin: boolean }>('/support/access').then((res) => res.data),
+
+  getUnreadCount: () =>
+    api.get<{ count: number; isAdmin: boolean }>('/support/unread-count').then((res) => res.data),
+
+  getMessages: () => api.get<SupportMessage[]>('/support/messages').then((res) => res.data),
+
+  sendMessage: (content: string) =>
+    api.post<SupportMessage>('/support/messages', { content }).then((res) => res.data),
+
+  getAdminConversations: () =>
+    api.get<SupportConversation[]>('/support/admin/conversations').then((res) => res.data),
+
+  getAdminConversation: (userId: string) =>
+    api.get<SupportConversationDetail>(`/support/admin/conversations/${userId}`).then((res) => res.data),
+
+  sendAdminMessage: (userId: string, content: string) =>
+    api.post<SupportMessage>(`/support/admin/conversations/${userId}/messages`, { content }).then((res) => res.data),
 };
 
 export default api;

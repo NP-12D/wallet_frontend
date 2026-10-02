@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
+import SupportChat from '@/components/SupportChat';
 
 export default function ProtectedAppLayout({
   children,
@@ -37,6 +38,7 @@ export default function ProtectedAppLayout({
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>
+      <SupportChat />
     </div>
   );
 }

@@ -12,6 +12,7 @@ export default function TransferPage() {
   const [balance, setBalance] = useState<number | null>(null);
   const [fetchingBalance, setFetchingBalance] = useState(true);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ receiverEmail?: string; amount?: string; description?: string }>({});
 
   // Fetch current user wallet balance for context
   const loadBalance = useCallback(async () => {
@@ -34,17 +35,15 @@ export default function TransferPage() {
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(null);
-
     const numAmount = Number(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-      setStatus({ type: 'error', msg: 'Please enter a valid transfer amount.' });
-      return;
-    }
-
-    if (balance !== null && numAmount > balance) {
-      setStatus({ type: 'error', msg: `Insufficient balance. Available: $${balance.toFixed(2)}` });
-      return;
-    }
+    const nextErrors: { receiverEmail?: string; amount?: string; description?: string } = {};
+    if (!receiverEmail.trim()) nextErrors.receiverEmail = 'Enter the recipient email address.';
+    else if (!/^\S+@\S+\.\S+$/.test(receiverEmail)) nextErrors.receiverEmail = 'Enter a valid email address.';
+    if (!Number.isFinite(numAmount) || numAmount <= 0) nextErrors.amount = 'Enter an amount greater than $0.';
+    else if (balance !== null && numAmount > balance) nextErrors.amount = `Amount exceeds your available balance of $${balance.toFixed(2)}.`;
+    if (description.length > 200) nextErrors.description = 'Use 200 characters or fewer.';
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
     setLoading(true);
 
@@ -140,6 +139,7 @@ export default function TransferPage() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.75fr)] lg:items-start">
         <form
           onSubmit={handleTransfer}
+          noValidate
           className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 sm:p-8 space-y-6 transition-colors hover:border-zinc-700"
         >
         <div className="space-y-1.5">
@@ -161,11 +161,14 @@ export default function TransferPage() {
               required
               disabled={loading}
               value={receiverEmail}
-              onChange={(e) => setReceiverEmail(e.target.value)}
+              onChange={(e) => { setReceiverEmail(e.target.value); setFieldErrors((current) => ({ ...current, receiverEmail: undefined })); }}
               placeholder="user2@example.com"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-10 pr-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 text-sm transition disabled:opacity-50"
+              aria-invalid={Boolean(fieldErrors.receiverEmail)}
+              aria-describedby={fieldErrors.receiverEmail ? 'transfer-email-error' : undefined}
+              className={`w-full rounded-lg border bg-zinc-950 py-3 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-600 transition focus:outline-none focus:ring-1 focus:ring-emerald-500/30 disabled:opacity-50 ${fieldErrors.receiverEmail ? 'border-zinc-500' : 'border-zinc-800 focus:border-emerald-500/50'}`}
             />
           </div>
+          {fieldErrors.receiverEmail && <p id="transfer-email-error" className="text-xs text-zinc-400">{fieldErrors.receiverEmail}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -195,11 +198,14 @@ export default function TransferPage() {
               required
               disabled={loading}
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => { setAmount(e.target.value); setFieldErrors((current) => ({ ...current, amount: undefined })); }}
               placeholder="0.00"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-8 pr-4 py-3 text-zinc-100 placeholder-zinc-650 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 text-sm font-mono font-semibold transition disabled:opacity-50"
+              aria-invalid={Boolean(fieldErrors.amount)}
+              aria-describedby={fieldErrors.amount ? 'transfer-amount-error' : undefined}
+              className={`w-full rounded-lg border bg-zinc-950 py-3 pl-8 pr-4 font-mono text-sm font-semibold text-zinc-100 placeholder-zinc-650 transition focus:outline-none focus:ring-1 focus:ring-emerald-500/30 disabled:opacity-50 ${fieldErrors.amount ? 'border-zinc-500' : 'border-zinc-800 focus:border-emerald-500/50'}`}
             />
           </div>
+          {fieldErrors.amount && <p id="transfer-amount-error" className="text-xs text-zinc-400">{fieldErrors.amount}</p>}
 
           <div className="flex items-center gap-2 pt-1">
             <span className="text-[11px] text-zinc-500">Quick:</span>
@@ -235,11 +241,14 @@ export default function TransferPage() {
               type="text"
               disabled={loading}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => { setDescription(e.target.value); setFieldErrors((current) => ({ ...current, description: undefined })); }}
               placeholder="e.g. Dinner repayment, subscription share"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-10 pr-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 text-sm transition disabled:opacity-50"
+              aria-invalid={Boolean(fieldErrors.description)}
+              aria-describedby={fieldErrors.description ? 'transfer-description-error' : undefined}
+              className={`w-full rounded-lg border bg-zinc-950 py-3 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-600 transition focus:outline-none focus:ring-1 focus:ring-emerald-500/30 disabled:opacity-50 ${fieldErrors.description ? 'border-zinc-500' : 'border-zinc-800 focus:border-emerald-500/50'}`}
             />
           </div>
+          {fieldErrors.description && <p id="transfer-description-error" className="text-xs text-zinc-400">{fieldErrors.description}</p>}
         </div>
 
           <button

@@ -1,10 +1,12 @@
 // components/Sidebar.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ReactElement } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { moneyRequestsApi } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 
 interface NavItem {
   name: string;
@@ -47,6 +49,25 @@ const navItems: NavItem[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+        />
+      </svg>
+    ),
+  },
+  {
+    name: 'Requests',
+    href: '/requests',
+    icon: ({ className = 'w-5 h-5' }) => (
+      <svg
+        className={className}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 8v4l2.5 2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
     ),
@@ -108,12 +129,41 @@ const navItems: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
+
+  const refreshPendingRequestCount = useCallback(async () => {
+    if (!isAuthenticated) {
+      setPendingRequestCount(0);
+      return;
+    }
+
+    try {
+      const { count } = await moneyRequestsApi.getPendingCount();
+      setPendingRequestCount(count);
+    } catch (error) {
+      console.error('Failed to load pending money request count:', error);
+    }
+  }, [isAuthenticated]);
 
   // Close mobile navigation drawer automatically on route change
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    void refreshPendingRequestCount();
+    const intervalId = window.setInterval(refreshPendingRequestCount, 30_000);
+    window.addEventListener('focus', refreshPendingRequestCount);
+    window.addEventListener('wallet-money-requests-updated', refreshPendingRequestCount);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshPendingRequestCount);
+      window.removeEventListener('wallet-money-requests-updated', refreshPendingRequestCount);
+    };
+  }, [refreshPendingRequestCount]);
 
   const renderNavLinks = () => (
     <nav className="space-y-1.5">
@@ -135,6 +185,14 @@ export default function Sidebar() {
               className={`w-5 h-5 ${isActive ? 'text-white' : 'text-zinc-400'}`}
             />
             <span>{item.name}</span>
+            {item.href === '/requests' && pendingRequestCount > 0 && (
+              <span
+                className="ml-auto min-w-5 rounded-full bg-zinc-100 px-1.5 py-0.5 text-center font-mono text-[10px] font-bold leading-none text-zinc-950"
+                aria-label={`${pendingRequestCount} pending money requests`}
+              >
+                {pendingRequestCount > 99 ? '99+' : pendingRequestCount}
+              </span>
+            )}
           </Link>
         );
       })}

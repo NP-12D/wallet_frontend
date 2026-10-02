@@ -9,6 +9,7 @@ export interface User {
   username: string;
   email: string;
   walletId?: string;
+  isAdmin?: boolean;
 }
 
 export interface Wallet {
@@ -22,7 +23,7 @@ export interface Wallet {
    ============================================================================ */
 
 export type TransactionType = 'INCOME' | 'EXPENSE';
-export type TransactionCategory = 'TOP_UP' | 'TRANSFER' | 'PAYMENT';
+export type TransactionCategory = 'TOP_UP' | 'TRANSFER' | 'MONEY_REQUEST';
 export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REJECTED';
 
 export interface Transaction {
@@ -115,6 +116,46 @@ export interface TransferResponse {
   amount: number;
   receiver_email?: string;
   description?: string;
+}
+
+export type MoneyRequestStatus = 'PENDING' | 'FULFILLED' | 'DECLINED';
+
+export interface MoneyRequestUser {
+  id: string;
+  username: string;
+  email: string;
+}
+
+export interface MoneyRequest {
+  requestId: string;
+  amount: number;
+  description: string;
+  status: MoneyRequestStatus;
+  createdAt: string;
+  respondedAt?: string;
+  requester: MoneyRequestUser;
+  recipient: MoneyRequestUser;
+}
+
+export type SupportSender = 'USER' | 'ADMIN';
+
+export interface SupportMessage {
+  id: string;
+  sender: SupportSender;
+  content: string;
+  createdAt: string;
+}
+
+export interface SupportConversation {
+  user: Pick<User, 'id' | 'username' | 'email'>;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+}
+
+export interface SupportConversationDetail {
+  user: Pick<User, 'id' | 'username' | 'email'>;
+  messages: SupportMessage[];
 }
 
 /* ============================================================================

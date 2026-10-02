@@ -10,16 +10,25 @@ import ThemeToggle from '@/components/ThemeToggle';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    const nextErrors: { email?: string; password?: string } = {};
+    if (!email.trim()) nextErrors.email = 'Enter your email address.';
+    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = 'Enter a valid email address.';
+    if (!password) nextErrors.password = 'Enter your password.';
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setLoading(true);
 
     try {
       await login(email, password);
@@ -54,7 +63,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form noValidate onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-zinc-300 mb-1.5">
               Email Address
@@ -63,24 +72,41 @@ export default function LoginPage() {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setFieldErrors((current) => ({ ...current, email: undefined }));
+              }}
               placeholder="user1@example.com"
-              className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-2.5 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 text-xs sm:text-sm transition"
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
+              className={`w-full rounded-xl border bg-zinc-950/80 px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 transition focus:outline-none sm:text-sm ${fieldErrors.email ? 'border-zinc-500' : 'border-zinc-800/80 focus:border-emerald-500/50'}`}
             />
+            {fieldErrors.email && <p id="login-email-error" className="mt-1.5 text-xs text-zinc-400">{fieldErrors.email}</p>}
           </div>
 
           <div>
             <label className="block text-xs font-medium text-zinc-300 mb-1.5">
               Password
             </label>
+            <div className="relative">
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((current) => ({ ...current, password: undefined }));
+              }}
               placeholder="••••••••"
-              className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-2.5 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50 text-xs sm:text-sm transition"
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? 'login-password-error' : undefined}
+              className={`w-full rounded-xl border bg-zinc-950/80 px-4 py-2.5 pr-12 text-xs text-zinc-100 placeholder-zinc-600 transition focus:outline-none sm:text-sm ${fieldErrors.password ? 'border-zinc-500' : 'border-zinc-800/80 focus:border-emerald-500/50'}`}
             />
+            <button type="button" onClick={() => setShowPassword((visible) => !visible)} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-zinc-300 transition hover:bg-zinc-800 hover:text-white" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+              {showPassword ? <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="m3 3 18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.9 10.9 0 0112 4c5.5 0 9.3 4.5 10 8-.2 1.1-.8 2.4-1.8 3.6M6.6 6.6C4.7 8 3.4 10.2 3 12c.7 3.5 4.5 8 9 8 1.3 0 2.5-.3 3.5-.8" /></svg> : <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" /><circle cx="12" cy="12" r="2.5" /></svg>}
+            </button>
+            </div>
+            {fieldErrors.password && <p id="login-password-error" className="mt-1.5 text-xs text-zinc-400">{fieldErrors.password}</p>}
           </div>
 
           <button

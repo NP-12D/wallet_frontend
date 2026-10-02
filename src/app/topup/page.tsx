@@ -11,25 +11,28 @@ export default function TopUpPage() {
   const [checkoutLoading, setCheckoutLoading] = useState<boolean>(false);
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResponse | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutFieldError, setCheckoutFieldError] = useState<string | null>(null);
 
   // Webhook Simulator State
   const [webhookTxId, setWebhookTxId] = useState<string>('');
   const [webhookStatus, setWebhookStatus] = useState<WebhookStatus>('SUCCESS');
   const [webhookLoading, setWebhookLoading] = useState<boolean>(false);
   const [webhookMessage, setWebhookMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [webhookFieldError, setWebhookFieldError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     const numAmt = Number(checkoutAmount);
 
-    if (isNaN(numAmt) || numAmt <= 0) {
-      setCheckoutError('Please enter a valid amount.');
+    if (!Number.isFinite(numAmt) || numAmt <= 0) {
+      setCheckoutFieldError('Enter an amount greater than $0.');
       return;
     }
 
     setCheckoutLoading(true);
     setCheckoutError(null);
+    setCheckoutFieldError(null);
     setCheckoutResult(null);
 
     try {
@@ -46,12 +49,13 @@ export default function TopUpPage() {
   const handleWebhook = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!webhookTxId.trim()) {
-      setWebhookMessage({ type: 'error', text: 'Transaction ID is required.' });
+      setWebhookFieldError('Enter a pending payment ID.');
       return;
     }
 
     setWebhookLoading(true);
     setWebhookMessage(null);
+    setWebhookFieldError(null);
 
     try {
       const result = await paymentsApi.webhook({
@@ -122,7 +126,7 @@ export default function TopUpPage() {
             </div>
           )}
 
-          <form onSubmit={handleCheckout} className="mt-6 space-y-5">
+          <form noValidate onSubmit={handleCheckout} className="mt-6 space-y-5">
             <div className="space-y-2">
               <label className="block text-xs font-medium text-zinc-300">Amount to add</label>
               <div className="relative">
@@ -134,10 +138,13 @@ export default function TopUpPage() {
                   required
                   disabled={checkoutLoading}
                   value={checkoutAmount}
-                  onChange={(e) => setCheckoutAmount(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-4 pl-8 pr-4 font-mono text-2xl font-semibold text-zinc-100 outline-none transition focus:border-emerald-500 disabled:opacity-50"
+                  onChange={(e) => { setCheckoutAmount(e.target.value); setCheckoutFieldError(null); }}
+                  aria-invalid={Boolean(checkoutFieldError)}
+                  aria-describedby={checkoutFieldError ? 'topup-amount-error' : undefined}
+                  className={`w-full rounded-lg border bg-zinc-950 py-4 pl-8 pr-4 font-mono text-2xl font-semibold text-zinc-100 outline-none transition disabled:opacity-50 ${checkoutFieldError ? 'border-zinc-500' : 'border-zinc-800 focus:border-emerald-500'}`}
                 />
               </div>
+              {checkoutFieldError && <p id="topup-amount-error" className="text-xs text-zinc-400">{checkoutFieldError}</p>}
               <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-1 text-[11px] text-zinc-500">Quick amount</span>
                 {[50, 100, 250, 500].map((preset) => (
@@ -175,16 +182,19 @@ export default function TopUpPage() {
               <div className="mx-auto grid h-10 w-10 place-items-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-500">$</div>
               <p className="mt-4 text-sm font-medium text-zinc-300">Waiting for a payment request</p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">Choose an amount, or confirm a saved pending payment with its transaction ID.</p>
-              <form onSubmit={handleWebhook} className="mt-5 space-y-3 text-left">
+              <form noValidate onSubmit={handleWebhook} className="mt-5 space-y-3 text-left">
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-zinc-300">Pending payment ID</label>
                   <input
                     type="text"
                     value={webhookTxId}
-                    onChange={(event) => setWebhookTxId(event.target.value)}
+                    onChange={(event) => { setWebhookTxId(event.target.value); setWebhookFieldError(null); }}
                     placeholder="tx_..."
-                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-zinc-100 outline-none focus:border-zinc-600"
+                    aria-invalid={Boolean(webhookFieldError)}
+                    aria-describedby={webhookFieldError ? 'topup-payment-id-error' : undefined}
+                    className={`w-full rounded-lg border bg-zinc-950 px-3 py-2.5 font-mono text-xs text-zinc-100 outline-none ${webhookFieldError ? 'border-zinc-500' : 'border-zinc-800 focus:border-zinc-600'}`}
                   />
+                  {webhookFieldError && <p id="topup-payment-id-error" className="text-xs text-zinc-400">{webhookFieldError}</p>}
                 </div>
                 <select
                   value={webhookStatus}
@@ -249,7 +259,7 @@ export default function TopUpPage() {
                 </div>
               )}
 
-              <form onSubmit={handleWebhook} className="mt-5 space-y-4">
+              <form noValidate onSubmit={handleWebhook} className="mt-5 space-y-4">
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-zinc-300">Payment outcome</label>
                   <div className="grid grid-cols-2 gap-2">

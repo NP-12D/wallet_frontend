@@ -87,6 +87,40 @@ function TrendChart({ transactions }: { transactions: Transaction[] }) {
   );
 }
 
+function ActivityByTypeChart({ transactions }: { transactions: Transaction[] }) {
+  const groups = [
+    { key: 'topups', label: 'Top ups', note: 'Added funds', className: 'bg-zinc-100 dark:bg-zinc-100', match: (item: Transaction) => item.category === 'TOP_UP' },
+    { key: 'received', label: 'Received', note: 'Transfer income', className: 'bg-zinc-700 dark:bg-zinc-300', match: (item: Transaction) => item.category === 'TRANSFER' && item.type === 'INCOME' },
+    { key: 'sent', label: 'Sent', note: 'Transfer expense', className: 'bg-zinc-500 dark:bg-zinc-500', match: (item: Transaction) => item.category === 'TRANSFER' && item.type === 'EXPENSE' },
+    { key: 'requestReceived', label: 'Request received', note: 'Money requested', className: 'bg-zinc-400 dark:bg-zinc-600', match: (item: Transaction) => item.category === 'MONEY_REQUEST' && item.type === 'INCOME' },
+    { key: 'requestPaid', label: 'Request paid', note: 'Request expense', className: 'bg-zinc-600 dark:bg-zinc-400', match: (item: Transaction) => item.category === 'MONEY_REQUEST' && item.type === 'EXPENSE' },
+  ].map((group) => ({
+    ...group,
+    value: transactions.filter(group.match).reduce((sum, item) => sum + item.amount, 0),
+  }));
+  const maxValue = Math.max(...groups.map((group) => group.value), 1);
+
+  return (
+    <div className="mt-6 grid h-76 grid-cols-2 items-end gap-x-5 gap-y-0 border-b border-zinc-800 px-2 pb-0 sm:h-56 sm:grid-cols-5 sm:gap-x-5 sm:px-5" role="img" aria-label="Monthly activity broken down by top ups, transfers, and money requests">
+      {groups.map((group) => {
+        const height = group.value > 0 ? Math.max((group.value / maxValue) * 100, 6) : 0;
+        return (
+          <div key={group.key} className="flex h-full flex-col justify-end text-center">
+            {group.value > 0 && <span className="mb-2 font-mono text-xs font-semibold text-zinc-300">{currency(group.value, true)}</span>}
+            <div className="flex flex-1 items-end">
+              <div className={`w-full rounded-t-lg ${group.className}`} style={{ height: `${height}%` }} />
+            </div>
+            <div className="py-3">
+              <span className="block text-xs font-medium text-zinc-400">{group.label}</span>
+              <span className="mt-0.5 block text-[10px] text-zinc-600">{group.note}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -213,6 +247,18 @@ export default function AnalyticsPage() {
             }) : <div className="py-10 text-center text-sm text-zinc-500">No completed expenses yet.</div>}
           </div>
         </div>
+      </section>
+
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Monthly activity</div>
+            <h2 className="mt-1 text-base font-semibold text-white">How money moved</h2>
+          </div>
+          <span className="text-xs text-zinc-500">{analytics?.month ?? 'This month'}</span>
+        </div>
+        <ActivityByTypeChart transactions={monthTransactions} />
+        {income === 0 && spent === 0 && <p className="pt-4 text-center text-sm text-zinc-500">Complete a top up or transfer to see your monthly activity here.</p>}
       </section>
 
       <section className="rounded-lg border border-zinc-800 bg-zinc-900">

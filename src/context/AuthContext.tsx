@@ -53,13 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const register = async (username: string, email: string, password: string) => {
-    const res = await authApi.register({ username, email, password });
-    setToken(res.token);
-    setUser(res.user);
-
-    localStorage.setItem('wallet_token', res.token);
-    localStorage.setItem('wallet_user', JSON.stringify(res.user));
-    document.cookie = `token=${res.token}; path=/; max-age=604800; SameSite=Lax`;
+    await authApi.register({ username, email, password });
   };
 
   const logout = () => {
